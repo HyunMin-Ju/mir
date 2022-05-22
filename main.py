@@ -1,8 +1,9 @@
 from model import *
 from load_data import *
+from torch.utils.data import DataLoader
 
 
-BASE_DIR = '../MIDI-BERT-CP/Data/CP_data/'
+BASE_DIR = './MIDI-BERT-CP/Data/CP_data/'
 
 train_set = Dataset(BASE_DIR, 'train')
 valid_set = Dataset(BASE_DIR, 'valid')
@@ -10,15 +11,16 @@ test_set = Dataset(BASE_DIR, 'test')
 
 vocab = create_vocab(train_set, valid_set, test_set)
 
-# batch_size=8
-train_loader = DataLoader(train_set, 8, True)
-valid_loader = DataLoader(valid_set, 8, False)
-test_loader = DataLoader(test_set, 8, False)
+# batch_size=1 (8에서 update)
+train_loader = DataLoader(train_set, 1, True)
+valid_loader = DataLoader(valid_set, 1, False)
+test_loader = DataLoader(test_set, 1, False)
 
-emb_model = CPEmbeddingLayer(vocab)
+mg_model = MG_model(vocab)
+
 x, y = next(iter(train_loader))
 
-print(x.shape)
+embedding = mg_model(x)
 
-embedding = emb_model(x)
-print(embedding.shape)
+#이거 실행시키면 0 기준으로 잘림,,,
+cutting(x[:,:,0][0])
