@@ -23,4 +23,5 @@ x, y = next(iter(train_loader))
 embedding = mg_model(x)
 
 #이거 실행시키면 0 기준으로 잘림,,,
-cutting(x[:,:,0][0])
+#cutting(embedding)
+

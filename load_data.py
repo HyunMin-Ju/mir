@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+import torch.nn as nn
 
 '''
 DATA_PATH_train = 'MIDI-BERT-CP/Data/CP_data/pop909_train.npy'
@@ -51,3 +53,18 @@ def create_vocab(train_set: Dataset, valid_set: Dataset, test_set: Dataset):
     _vocabs = {'idx2pitch': idx2pitch, 'idx2beat': idx2beat, 'idx2dur': idx2dur, 'pitch2idx': pitch2idx,
                'beat2idx': beat2idx, 'dur2idx': dur2idx}
     return _vocabs
+
+def note_represent(train_set: Dataset, valid_set: Dataset, test_set: Dataset):
+    whole_dataset = np.concatenate((train_set.x, valid_set.x, test_set.x), 0).reshape(-1, 4)
+    bar, sub_beat, pitch, dur = whole_dataset[:,0], whole_dataset[:,1], whole_dataset[:,2], whole_dataset[:, 3]
+
+    start_timestep = [0]
+    for i in (1,range(len(pitch))):
+        if bar[i]==1:
+            i += 1
+        start_timestep.append(64 * i + (sub_beat[i] - 1) * 4)
+
+    velocity = 64
+    note_repr = torch.vstack((start_timestep, pitch, dur, velocity)).T
+
+    return note_repr.numpy()
