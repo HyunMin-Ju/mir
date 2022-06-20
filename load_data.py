@@ -54,17 +54,20 @@ def create_vocab(train_set: Dataset, valid_set: Dataset, test_set: Dataset):
                'beat2idx': beat2idx, 'dur2idx': dur2idx}
     return _vocabs
 
-def note_represent(train_set: Dataset, valid_set: Dataset, test_set: Dataset):
-    whole_dataset = np.concatenate((train_set.x, valid_set.x, test_set.x), 0).reshape(-1, 4)
-    bar, sub_beat, pitch, dur = whole_dataset[:,0], whole_dataset[:,1], whole_dataset[:,2], whole_dataset[:, 3]
+def note_represent(song):
+    # whole_dataset = np.concatenate((train_set.x, valid_set.x, test_set.x), 0).reshape(-1, 4)
+    x = song.squeeze(0).numpy().T
+    print(x.shape)
+    bar, sub_beat, pitch, dur = x[0], x[1], x[2], x[3]
 
-    start_timestep = [0]
-    for i in (1,range(len(pitch))):
-        if bar[i]==1:
+    start_timestep = []
+
+    for i in range(len(pitch)-1):
+        if bar[i]==0:
             i += 1
         start_timestep.append(64 * i + (sub_beat[i] - 1) * 4)
 
     velocity = 64
-    note_repr = torch.vstack((start_timestep, pitch, dur, velocity)).T
+    note_repr = (start_timestep, pitch, dur, velocity)
 
-    return note_repr.numpy()
+    return note_repr
